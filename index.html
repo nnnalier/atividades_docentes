@@ -306,7 +306,7 @@ let state = {
   nome:"", turma:"", order:[], optionMaps:{}, current:0, answers:[],
   flags:{ tabSwitches:0, pasteAttempts:0, rightClicks:0 },
   qStartTime:0, timerInterval:null, timeLeft:TIME_PER_QUESTION,
-  lastCode:""
+  lastCode:"", startedAt:null, attemptNumber:1, previousAttempts:[]
 };
 let profRecords = [];
 
@@ -350,6 +350,33 @@ function startQuiz(){
   if (!turma){ alert("Preencha sua turma para começar."); return; }
   state.nome = nome;
   state.turma = turma;
+
+  // Verifica tentativas anteriores registradas neste navegador/dispositivo para este aluno.
+  // Aviso: isso não impede burla (aba anônima, outro navegador, limpar dados), mas desencoraja
+  // e fica registrado no código final de envio, visível para a professora.
+  const attemptKey = "atividade_tentativas_" + nome.toLowerCase().replace(/\s+/g,"_") + "_" + turma.toLowerCase().replace(/\s+/g,"_");
+  let previousAttempts = [];
+  try{
+    const stored = localStorage.getItem(attemptKey);
+    if (stored) previousAttempts = JSON.parse(stored);
+  }catch(e){ previousAttempts = []; }
+
+  if (previousAttempts.length > 0){
+    const ultima = new Date(previousAttempts[previousAttempts.length-1]).toLocaleString('pt-BR');
+    const confirmar = confirm(
+      `Este dispositivo já registra ${previousAttempts.length} tentativa(s) anterior(es) desta atividade por você, a última em ${ultima}.\n\n` +
+      `Se continuar, esta será a tentativa nº ${previousAttempts.length+1}, e isso ficará registrado no código enviado à professora.\n\n` +
+      `Deseja continuar mesmo assim?`
+    );
+    if (!confirmar) return;
+  }
+
+  state.startedAt = new Date().toISOString();
+  state.attemptNumber = previousAttempts.length + 1;
+  state.previousAttempts = previousAttempts;
+
+  previousAttempts.push(state.startedAt);
+  try{ localStorage.setItem(attemptKey, JSON.stringify(previousAttempts)); }catch(e){ /* localStorage indisponível — segue sem travar */ }
 
   const rng = seedFromString(nome.toLowerCase() + "_" + state.turma.toLowerCase());
   state.order = shuffle(QUESTION_BANK.map(q=>q.id), rng);
@@ -406,7 +433,7 @@ function renderQuestion(){
   document.getElementById("progress-fill").style.width = `${(state.current/state.order.length)*100}%`;
 
   const codeHtml = q.code
-    ? `<pre style="background:var(--paper); border:1px solid var(--rule); border-radius:7px; padding:12px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; overflow-x:auto; margin-bottom:12px; white-space:pre-wrap;">${escapeHtml(q.code)}</pre>`
+    ? `<pre style="background:#0F1424; border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; overflow-x:auto; margin-bottom:12px; white-space:pre-wrap; color:#D6DCF0;">${escapeHtml(q.code)}</pre>`
     : "";
   document.getElementById("q-text").innerHTML = codeHtml + `<span>${escapeHtml(q.question).replace(/\n/g,"<br>")}</span>`;
 
@@ -506,8 +533,11 @@ function finishQuiz(){
   const dissertativas = state.answers.filter(a=>a.type==="dissertativa");
   const score = mcAnswers.filter(a=>a.correct).length;
   const mcTotal = mcAnswers.length;
+  const finishedAt = new Date().toISOString();
   const record = {
-    nome: state.nome, turma: state.turma, timestamp: new Date().toISOString(),
+    nome: state.nome, turma: state.turma, timestamp: finishedAt,
+    startedAt: state.startedAt, finishedAt: finishedAt,
+    attemptNumber: state.attemptNumber, previousAttemptsCount: state.previousAttempts.length,
     score, total: mcTotal, dissertativasCount: dissertativas.length,
     flags: state.flags, answers: state.answers
   };
@@ -590,19 +620,22 @@ function renderProfTable(){
     return;
   }
   const sorted = profRecords.slice().sort((a,b)=>{
-    const fa = a.flags.tabSwitches+a.flags.pasteAttempts+a.flags.rightClicks;
-    const fb = b.flags.tabSwitches+b.flags.pasteAttempts+b.flags.rightClicks;
+    const fa = a.flags.tabSwitches+a.flags.pasteAttempts+a.flags.rightClicks + ((a.attemptNumber>1)?1:0);
+    const fb = b.flags.tabSwitches+b.flags.pasteAttempts+b.flags.rightClicks + ((b.attemptNumber>1)?1:0);
     return fb-fa;
   });
-  let html = `<table><thead><tr><th>Aluno</th><th>Turma</th><th>Nota</th><th>Alertas</th><th></th></tr></thead><tbody>`;
+  let html = `<table><thead><tr><th>Aluno</th><th>Turma</th><th>Nota</th><th>Tentativa</th><th>Alertas</th><th></th></tr></thead><tbody>`;
   sorted.forEach((d,i)=>{
     const totalFlags = d.flags.tabSwitches+d.flags.pasteAttempts+d.flags.rightClicks;
     const badge = totalFlags===0 ? `<span class="badge badge-green">OK</span>` : `<span class="badge badge-red">${totalFlags} alerta(s)</span>`;
+    const attemptBadge = (d.attemptNumber && d.attemptNumber>1)
+      ? `<span class="badge badge-amber">${d.attemptNumber}ª tentativa</span>`
+      : `<span class="badge badge-green">1ª</span>`;
     html += `<tr>
-      <td>${d.nome}</td><td>${d.turma||"-"}</td><td>${d.score}/${d.total}</td><td>${badge}</td>
+      <td>${d.nome}</td><td>${d.turma||"-"}</td><td>${d.score}/${d.total}</td><td>${attemptBadge}</td><td>${badge}</td>
       <td><a class="link" onclick="toggleDetail(${i})">ver</a></td>
     </tr>
-    <tr id="detail-${i}" class="hidden"><td colspan="5">${renderDetail(d)}</td></tr>`;
+    <tr id="detail-${i}" class="hidden"><td colspan="6">${renderDetail(d)}</td></tr>`;
   });
   html += "</tbody></table>";
   tableWrap.innerHTML = html;
@@ -610,14 +643,24 @@ function renderProfTable(){
 }
 
 function renderDetail(d){
-  let out = `<div class="detail"><strong>Enviado em:</strong> ${new Date(d.timestamp).toLocaleString('pt-BR')}<br>
-  <strong>Trocas de tela:</strong> ${d.flags.tabSwitches} · <strong>Colagens:</strong> ${d.flags.pasteAttempts} · <strong>Clique direito:</strong> ${d.flags.rightClicks}</div>`;
+  let duracao = "-";
+  if (d.startedAt && d.finishedAt){
+    const mins = Math.round((new Date(d.finishedAt) - new Date(d.startedAt))/60000);
+    duracao = `${mins} min`;
+  }
+  const attemptLine = (d.attemptNumber && d.attemptNumber>1)
+    ? `<br><strong style="color:var(--warn);">Atenção:</strong> esta foi a ${d.attemptNumber}ª tentativa registrada neste dispositivo (${d.previousAttemptsCount} anterior(es)).`
+    : "";
+  let out = `<div class="detail"><strong>Início:</strong> ${d.startedAt ? new Date(d.startedAt).toLocaleString('pt-BR') : "-"} ·
+  <strong>Término:</strong> ${d.finishedAt ? new Date(d.finishedAt).toLocaleString('pt-BR') : "-"} ·
+  <strong>Duração:</strong> ${duracao}<br>
+  <strong>Trocas de tela:</strong> ${d.flags.tabSwitches} · <strong>Colagens:</strong> ${d.flags.pasteAttempts} · <strong>Clique direito:</strong> ${d.flags.rightClicks}${attemptLine}</div>`;
   d.answers.forEach((a,i)=>{
     const isDiss = a.type === "dissertativa";
-    out += `<div class="detail" style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--rule);">
+    out += `<div class="detail" style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
       <strong>${i+1}. ${(a.question||"").replace(/\n/g,"<br>")}</strong><br>
       ${isDiss
-        ? `<div style="white-space:pre-wrap; background:var(--paper); border-radius:6px; padding:8px; margin-top:4px;">${a.selectedText}</div><span class="badge badge-amber" style="margin-top:4px; display:inline-block;">Corrigir manualmente</span>`
+        ? `<div style="white-space:pre-wrap; background:var(--card-hi); border-radius:6px; padding:8px; margin-top:4px;">${a.selectedText}</div><span class="badge badge-amber" style="margin-top:4px; display:inline-block;">Corrigir manualmente</span>`
         : `Resposta: ${a.selectedText} — ${a.correct?"✔ correta":"✘ incorreta"} ${a.timedOut?"(tempo esgotado)":""}`
       }<br>
       Tempo gasto: ${a.timeSpent}s
