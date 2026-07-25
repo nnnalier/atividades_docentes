@@ -186,7 +186,7 @@
     <p id="done-msg" style="margin-top:18px;"></p>
     <p class="small" id="done-flags"></p>
     <div style="text-align:left;">
-      <label>Seu código de envio — copie e mande para o professor</label>
+      <label>Seu código de envio — copie e mande para a Professora no Classroom da Turma</label>
       <textarea class="code" id="submission-code" readonly onclick="this.select()"></textarea>
       <div class="row">
         <button class="btn-primary" onclick="copyCode()">Copiar código</button>
@@ -290,13 +290,13 @@ const QUESTION_BANK = [
   { id:"q9", type:"dissertativa",
     question:"Explique, com suas próprias palavras, a diferença entre uma estrutura SE simples e uma estrutura SE...SENÃO. Dê um exemplo de situação em que cada uma pode ser utilizada." },
 
-  { id:"q10", type:"dissertativa", timeSeconds:480,
+  { id:"q10", type:"dissertativa",
     question:"Uma loja oferece frete grátis quando o valor da compra for maior ou igual a R$ 150,00. Escreva um algoritmo completo em VisuAlg que leia o valor da compra e exiba a mensagem \"Frete grátis\" quando a condição for atendida." },
 
-  { id:"q11", type:"dissertativa", timeSeconds:480,
+  { id:"q11", type:"dissertativa",
     question:"Construa um algoritmo completo em VisuAlg para o seguinte menu:\n1 — Consultar saldo\n2 — Realizar saque\n3 — Encerrar\n\nO algoritmo deve ler a opção escolhida, utilizar a estrutura ESCOLHA...CASO e exibir a mensagem correspondente. Para qualquer outro número, deve exibir \"Opção inválida\"." },
 
-  { id:"q12", type:"dissertativa", timeSeconds:420,
+  { id:"q12", type:"dissertativa",
     question:"Escreva um algoritmo completo em VisuAlg que utilize a estrutura PARA para exibir os números de 1 até 5. Depois, informe quantas vezes o bloco de comandos será executado." }
 ];
 
@@ -304,7 +304,7 @@ const QUESTION_BANK = [
 
 let state = {
   nome:"", turma:"", order:[], optionMaps:{}, current:0, answers:[],
-  flags:{ tabSwitches:0, pasteAttempts:0, rightClicks:0 },
+  flags:{ tabSwitches:0, copyAttempts:0, pasteAttempts:0, rightClicks:0 },
   qStartTime:0, timerInterval:null, timeLeft:TIME_PER_QUESTION,
   lastCode:"", startedAt:null, attemptNumber:1, previousAttempts:[]
 };
@@ -389,7 +389,7 @@ function startQuiz(){
 
   state.current = 0;
   state.answers = [];
-  state.flags = { tabSwitches:0, pasteAttempts:0, rightClicks:0 };
+  state.flags = { tabSwitches:0, copyAttempts:0, pasteAttempts:0, rightClicks:0 };
 
   attachMonitoring();
   goTo("quiz");
@@ -400,6 +400,11 @@ function attachMonitoring(){
   document.addEventListener("visibilitychange", ()=>{
     if (document.hidden && !document.getElementById("screen-quiz").classList.contains("hidden")){
       state.flags.tabSwitches++; renderLiveFlags();
+    }
+  });
+  document.addEventListener("copy", ()=>{
+    if (!document.getElementById("screen-quiz").classList.contains("hidden")){
+      state.flags.copyAttempts++; renderLiveFlags();
     }
   });
   document.addEventListener("paste", ()=>{
@@ -418,6 +423,7 @@ function renderLiveFlags(){
   const wrap = document.getElementById("live-flags");
   wrap.innerHTML = "";
   if (state.flags.tabSwitches>0) wrap.innerHTML += `<span class="badge badge-amber">Saiu da tela: ${state.flags.tabSwitches}x</span>`;
+  if (state.flags.copyAttempts>0) wrap.innerHTML += `<span class="badge badge-red">Copiou texto: ${state.flags.copyAttempts}x</span>`;
   if (state.flags.pasteAttempts>0) wrap.innerHTML += `<span class="badge badge-red">Colar detectado: ${state.flags.pasteAttempts}x</span>`;
   if (state.flags.rightClicks>0) wrap.innerHTML += `<span class="badge badge-amber">Clique direito: ${state.flags.rightClicks}x</span>`;
 }
@@ -544,7 +550,7 @@ function finishQuiz(){
   state.lastCode = encode64(JSON.stringify(record));
 
   goTo("done");
-  const totalFlags = state.flags.tabSwitches + state.flags.pasteAttempts + state.flags.rightClicks;
+  const totalFlags = state.flags.tabSwitches + state.flags.copyAttempts + state.flags.pasteAttempts + state.flags.rightClicks;
   const stampArea = document.getElementById("stamp-area");
   stampArea.innerHTML = totalFlags===0
     ? `<div class="stamp stamp-green">Íntegro ✓</div>`
@@ -553,7 +559,7 @@ function finishQuiz(){
   if (dissertativas.length>0) msg += ` As ${dissertativas.length} questão(ões) dissertativa(s)/de código serão corrigidas pela professora.`;
   document.getElementById("done-msg").innerHTML = msg;
   document.getElementById("done-flags").textContent = totalFlags>0
-    ? `Sinais registrados: ${state.flags.tabSwitches} troca(s) de tela, ${state.flags.pasteAttempts} colagem(ns), ${state.flags.rightClicks} clique(s) direito.`
+    ? `Sinais registrados: ${state.flags.tabSwitches} troca(s) de tela, ${state.flags.copyAttempts} cópia(s), ${state.flags.pasteAttempts} colagem(ns), ${state.flags.rightClicks} clique(s) direito.`
     : "Nenhum sinal de saída da tela ou colagem foi registrado.";
   document.getElementById("submission-code").value = state.lastCode;
 }
@@ -620,13 +626,13 @@ function renderProfTable(){
     return;
   }
   const sorted = profRecords.slice().sort((a,b)=>{
-    const fa = a.flags.tabSwitches+a.flags.pasteAttempts+a.flags.rightClicks + ((a.attemptNumber>1)?1:0);
-    const fb = b.flags.tabSwitches+b.flags.pasteAttempts+b.flags.rightClicks + ((b.attemptNumber>1)?1:0);
+    const fa = a.flags.tabSwitches+(a.flags.copyAttempts||0)+a.flags.pasteAttempts+a.flags.rightClicks + ((a.attemptNumber>1)?1:0);
+    const fb = b.flags.tabSwitches+(b.flags.copyAttempts||0)+b.flags.pasteAttempts+b.flags.rightClicks + ((b.attemptNumber>1)?1:0);
     return fb-fa;
   });
   let html = `<table><thead><tr><th>Aluno</th><th>Turma</th><th>Nota</th><th>Tentativa</th><th>Alertas</th><th></th></tr></thead><tbody>`;
   sorted.forEach((d,i)=>{
-    const totalFlags = d.flags.tabSwitches+d.flags.pasteAttempts+d.flags.rightClicks;
+    const totalFlags = d.flags.tabSwitches+(d.flags.copyAttempts||0)+d.flags.pasteAttempts+d.flags.rightClicks;
     const badge = totalFlags===0 ? `<span class="badge badge-green">OK</span>` : `<span class="badge badge-red">${totalFlags} alerta(s)</span>`;
     const attemptBadge = (d.attemptNumber && d.attemptNumber>1)
       ? `<span class="badge badge-amber">${d.attemptNumber}ª tentativa</span>`
@@ -654,7 +660,7 @@ function renderDetail(d){
   let out = `<div class="detail"><strong>Início:</strong> ${d.startedAt ? new Date(d.startedAt).toLocaleString('pt-BR') : "-"} ·
   <strong>Término:</strong> ${d.finishedAt ? new Date(d.finishedAt).toLocaleString('pt-BR') : "-"} ·
   <strong>Duração:</strong> ${duracao}<br>
-  <strong>Trocas de tela:</strong> ${d.flags.tabSwitches} · <strong>Colagens:</strong> ${d.flags.pasteAttempts} · <strong>Clique direito:</strong> ${d.flags.rightClicks}${attemptLine}</div>`;
+  <strong>Trocas de tela:</strong> ${d.flags.tabSwitches} · <strong>Cópias:</strong> ${d.flags.copyAttempts||0} · <strong>Colagens:</strong> ${d.flags.pasteAttempts} · <strong>Clique direito:</strong> ${d.flags.rightClicks}${attemptLine}</div>`;
   d.answers.forEach((a,i)=>{
     const isDiss = a.type === "dissertativa";
     out += `<div class="detail" style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
@@ -673,9 +679,9 @@ function toggleDetail(i){ document.getElementById("detail-"+i).classList.toggle(
 
 function exportCsv(){
   if (profRecords.length===0){ alert("Nenhum envio para exportar ainda."); return; }
-  let csv = "Nome,Turma,Nota,Total,Trocas de tela,Colagens,Clique direito,Data\n";
+  let csv = "Nome,Turma,Nota,Total,Trocas de tela,Cópias,Colagens,Clique direito,Data\n";
   profRecords.forEach(d=>{
-    csv += `"${d.nome}","${d.turma||''}",${d.score},${d.total},${d.flags.tabSwitches},${d.flags.pasteAttempts},${d.flags.rightClicks},"${new Date(d.timestamp).toLocaleString('pt-BR')}"\n`;
+    csv += `"${d.nome}","${d.turma||''}",${d.score},${d.total},${d.flags.tabSwitches},${d.flags.copyAttempts||0},${d.flags.pasteAttempts},${d.flags.rightClicks},"${new Date(d.timestamp).toLocaleString('pt-BR')}"\n`;
   });
   const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
   const url = URL.createObjectURL(blob);
