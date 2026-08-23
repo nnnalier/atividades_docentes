@@ -147,7 +147,7 @@
     <h2>Orientações sobre como responder o exercício</h2>
     <ul class="rule-list">
       <li>O exercício é <strong>individual e sem consulta</strong>, sendo permitido apenas os seus conhecimentos adquiridos durante a aula e estudando em casa.</li>
-      <li>Você tem <strong>1 hora no total</strong> para concluir todo o exercício (14 questões), contada <strong>a partir do momento em que você iniciar o login abaixo</strong> — não há tempo individual por questão, você administra o seu próprio ritmo dentro da hora.</li>
+      <li>Você tem <strong>1 hora no total</strong> para concluir todo o exercício (10 questões), contada <strong>a partir do momento em que você iniciar o login abaixo</strong> — não há tempo individual por questão, você administra o seu próprio ritmo dentro da hora.</li>
       <li>Se a hora se esgotar antes de você terminar, a atividade é <strong>enviada automaticamente</strong> com as respostas que estiverem preenchidas até aquele momento; o que não tiver sido respondido conta como não respondido.</li>
       <li>Escolha um <strong>local calmo e silencioso</strong> para fazer o exercício. Ao iniciar, você deverá concluir a atividade imediatamente — <strong>a plataforma não permite pausas</strong>.</li>
       <li>Esta não é uma prova de segunda chamada — é a aplicação regular do exercício.</li>
@@ -245,15 +245,6 @@ const QUESTION_BANK = [
     options:["PAN","LAN","MAN","WAN"], correct:0 },
 
   { id:"q2", type:"mc",
-    question:"Durante a crimpagem de um cabo de rede, o testador apresenta o resultado 1-1, 2-2, 3-6, 4-4, 5-5, 6-3, 7-7, 8-8. Esse resultado indica um cabo do tipo:",
-    options:[
-      "Reto, seguindo o padrão T568A nas duas pontas",
-      "Reto, seguindo o padrão T568B nas duas pontas",
-      "Crossover, pois os pares das posições 3 e 6 estão cruzados",
-      "Com defeito, pois nenhum cabo pode apresentar esse resultado"
-    ], correct:2 },
-
-  { id:"q3", type:"mc",
     question:"No Cisco Packet Tracer, PC1 foi configurado com o endereço 192.168.10.1/24 e PC2 com 192.168.20.2/24, ambos ligados ao mesmo switch, sem qualquer roteador na topologia. Ao testar o ping entre eles, o resultado esperado é:",
     options:[
       "Sucesso, pois estão no mesmo switch",
@@ -262,7 +253,7 @@ const QUESTION_BANK = [
       "Falha, apenas por causa do cabo utilizado"
     ], correct:1 },
 
-  { id:"q4", type:"mc",
+  { id:"q3", type:"mc",
     question:"Um computador está configurado na rede 192.168.10.0/24. Considerando o endereço de rede e o endereço de broadcast desse segmento, qual é a faixa correta de hosts válidos?",
     options:[
       "192.168.10.0 a 192.168.10.255",
@@ -271,42 +262,27 @@ const QUESTION_BANK = [
       "192.168.10.0 a 192.168.10.254"
     ], correct:1 },
 
-  { id:"q5", type:"mc",
-    question:"Um computador recebeu o endereço 169.254.20.8 automaticamente. Qual é a hipótese mais provável para esse resultado?",
-    options:[
-      "O computador está configurado com IP público",
-      "Houve falha na obtenção de configuração via DHCP e o Windows atribuiu um endereço APIPA",
-      "O computador está usando NAT",
-      "O endereço é do tipo loopback"
-    ], correct:1 },
-
-  { id:"q6", type:"mc",
+  { id:"q4", type:"mc",
     question:"Duas máquinas virtuais estão configuradas no mesmo modo de rede do VirtualBox, com IPs na mesma subrede, mas o ping entre elas falha. Qual modo de rede deveria ter sido escolhido para permitir comunicação isolada apenas entre as VMs, sem depender do hospedeiro?",
     options:["Modo NAT","Modo bridge","Rede interna","Modo loopback"], correct:2 },
 
-  { id:"q7", type:"mc",
+  { id:"q5", type:"mc",
     question:"Um computador consegue pingar o endereço 8.8.8.8, mas não consegue abrir sites digitando o nome de domínio no navegador. Qual serviço deve ser verificado primeiro?",
     options:["DHCP","DNS","Gateway padrão","NAT"], correct:1 },
 
-  { id:"q8", type:"dissertativa",
+  { id:"q6", type:"dissertativa",
     question:"Explique a diferença entre a topologia física e a topologia lógica de uma rede, e dê um exemplo de cada uma." },
 
-  { id:"q9", type:"dissertativa",
+  { id:"q7", type:"dissertativa",
     question:"Compare os padrões T568A e T568B quanto à ordem dos condutores, e explique quando cada um é utilizado na montagem de um cabo reto e de um cabo crossover." },
 
-  { id:"q10", type:"dissertativa",
-    question:"Considerando a rede 192.168.1.0/24, explique o que representa o endereço de rede, o que representa o endereço de broadcast e por que nenhum dos dois pode ser atribuído a um host." },
-
-  { id:"q11", type:"dissertativa",
+  { id:"q8", type:"dissertativa",
     question:"Explique a finalidade do NAT em uma rede doméstica e por que ele não deve ser considerado um substituto para um firewall." },
 
-  { id:"q12", type:"dissertativa",
+  { id:"q9", type:"dissertativa",
     question:"Um aluno configurou duas máquinas virtuais na mesma rede interna do VirtualBox, com IPs compatíveis, mas o ping entre elas falha. Cite três possíveis causas para esse problema." },
 
-  { id:"q13", type:"dissertativa",
-    question:"Explique a diferença entre configurar um endereço IP manualmente e obtê-lo via DHCP, citando uma vantagem de cada abordagem." },
-
-  { id:"q14", type:"dissertativa",
+  { id:"q10", type:"dissertativa",
     question:"Um computador não consegue acessar a internet. Descreva uma sequência lógica de testes (em camadas) que um técnico deveria seguir para diagnosticar o problema, do mais local ao mais externo." }
 ];
 
