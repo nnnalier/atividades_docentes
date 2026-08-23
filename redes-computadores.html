@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atividade Segura — Redes de Computadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F19;
+    --bg-glow:#141B2E;
+    --card:#161C2C;
+    --card-hi:#1C2338;
+    --border:#2A3350;
+    --text:#F3F5FA;
+    --text-soft:#94A0BE;
+    --accent:#3E63FF;
+    --accent-hover:#2E4FE0;
+    --accent-soft:rgba(62,99,255,.15);
+    --good:#2FD98C;
+    --good-soft:rgba(47,217,140,.14);
+    --bad:#FF6B81;
+    --bad-soft:rgba(255,107,129,.14);
+    --warn:#FFC24B;
+    --warn-soft:rgba(255,194,75,.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, var(--bg-glow), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    padding:28px 14px 60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  .masthead{text-align:center; margin-bottom:24px;}
+  .masthead .eyebrow{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent);
+    background:var(--accent-soft); border:1px solid rgba(62,99,255,.35);
+    padding:5px 12px; border-radius:999px; margin-bottom:12px;
+  }
+  .masthead h1{font-family:'Poppins', sans-serif; font-size:27px; font-weight:800; margin:0; letter-spacing:-.01em;}
+  .masthead p{color:var(--text-soft); font-size:13.5px;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:16px; padding:26px 24px;
+    box-shadow:0 1px 2px rgba(0,0,0,.2), 0 16px 40px rgba(0,0,0,.35);
+  }
+  .card + .card{margin-top:16px;}
+  h2{font-family:'Poppins', sans-serif; font-size:19px; font-weight:700; margin:0 0 14px;}
+  p{line-height:1.6; color:var(--text-soft); font-size:14.5px;}
+  label{display:block; font-size:13px; font-weight:600; margin:14px 0 6px; color:var(--text);}
+  input[type=text], select, textarea{
+    width:100%; padding:12px 13px; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Inter',sans-serif; font-size:15px; color:var(--text); background:#0F1424;
+  }
+  input[type=text]::placeholder, textarea::placeholder{color:#5C6788;}
+  textarea{resize:vertical; min-height:70px;}
+  textarea.code{font-family:'IBM Plex Mono', monospace; font-size:12px; min-height:90px;}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
+  button{
+    font-family:'Inter',sans-serif; font-weight:700; font-size:14.5px;
+    border:none; border-radius:999px; padding:13px 22px; cursor:pointer; transition:transform .08s ease, filter .15s ease;
+  }
+  button:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent); color:#fff; box-shadow:0 6px 18px rgba(62,99,255,.35);}
+  .btn-primary:hover{background:var(--accent-hover); filter:brightness(1.05);}
+  .btn-ghost{background:transparent; color:var(--text-soft); border:1.5px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--text-soft); color:var(--text);}
+  .btn-danger{background:var(--bad-soft); color:var(--bad);}
+  .row{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; align-items:center;}
+  .rule-list{margin:0; padding-left:18px; color:var(--text-soft); font-size:14px; line-height:1.75;}
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono', monospace;
+    font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    padding:4px 10px; border-radius:999px;
+  }
+  .badge-amber{background:var(--warn-soft); color:var(--warn);}
+  .badge-red{background:var(--bad-soft); color:var(--bad);}
+  .badge-green{background:var(--good-soft); color:var(--good);}
+  .timer{
+    font-family:'IBM Plex Mono', monospace; font-size:15px; font-weight:600;
+    color:var(--text); background:#0F1424; border:1px solid var(--border); border-radius:999px; padding:7px 14px;
+  }
+  .qtop{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .qcount{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-soft);}
+  .progress{height:5px; background:var(--border); border-radius:3px; margin:10px 0 20px; overflow:hidden;}
+  .progress-fill{height:100%; background:linear-gradient(90deg, var(--accent), var(--good)); transition:width .3s;}
+  .opt{
+    display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--border); border-radius:12px;
+    padding:13px 14px; margin-bottom:9px; cursor:pointer; font-size:14.5px; background:#0F1424;
+    transition:border-color .12s ease, background .12s ease;
+  }
+  .opt:hover{border-color:var(--accent);}
+  .opt.selected{border-color:var(--accent); background:var(--accent-soft);}
+  .opt input{margin-top:2px;}
+  .flagbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+  .stamp{
+    font-family:'Poppins', sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em;
+    text-transform:uppercase; border:3px solid currentColor; border-radius:14px; display:inline-block;
+    padding:12px 26px; transform:rotate(-4deg) scale(1); animation:stampIn .35s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes stampIn{
+    0%{transform:rotate(-4deg) scale(2.2); opacity:0;}
+    60%{opacity:1;}
+    100%{transform:rotate(-4deg) scale(1); opacity:1;}
+  }
+  .stamp-green{color:var(--good); background:var(--good-soft);}
+  .stamp-red{color:var(--bad); background:var(--bad-soft);}
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th, td{text-align:left; padding:10px 8px; border-bottom:1px solid var(--border); vertical-align:top;}
+  th{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-soft);}
+  .detail{font-size:13px; color:var(--text-soft); margin-top:4px;}
+  .hidden{display:none !important;}
+  .small{font-size:12.5px; color:var(--text-soft);}
+  a.link{color:var(--accent); cursor:pointer; font-weight:600; font-size:13px;}
+  .footer-note{text-align:center; font-size:12px; color:var(--text-soft); margin-top:22px;}
+  .warn{background:var(--warn-soft); border:1px solid rgba(255,194,75,.4); color:var(--warn); padding:10px 12px; border-radius:10px; font-size:13px; margin-top:10px;}
+  pre{color:#D6DCF0 !important; background:#0F1424 !important; border-color:var(--border) !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="eyebrow" id="masthead-eyebrow">Disciplina: Redes de Computadores</div>
+    <h1 id="masthead-title">Exercício de Fixação — Aulas 1 a 6</h1>
+    <p style="margin:6px 0 0; font-size:13px;" id="masthead-teacher">Professora: Nayara Nunes</p>
+  </div>
+
+  <!-- TELA INICIAL -->
+  <div id="screen-home" class="card">
+    <h2>Quem está acessando?</h2>
+    <p>Alunos respondem a atividade normalmente. O professor coleta os envios em um painel separado, colando os códigos recebidos de cada aluno.</p>
+    <div class="row">
+      <button class="btn-primary" onclick="goTo('aluno-intro')">Sou aluno(a)</button>
+      <button class="btn-ghost" onclick="goTo('prof-login')">Sou professor(a)</button>
+    </div>
+  </div>
+
+  <!-- INTRO ALUNO -->
+  <div id="screen-aluno-intro" class="card hidden">
+    <h2>Orientações sobre como responder o exercício</h2>
+    <ul class="rule-list">
+      <li>O exercício é <strong>individual e sem consulta</strong>, sendo permitido apenas os seus conhecimentos adquiridos durante a aula e estudando em casa.</li>
+      <li>Você tem <strong>1 hora no total</strong> para concluir todo o exercício (14 questões), contada <strong>a partir do momento em que você iniciar o login abaixo</strong> — não há tempo individual por questão, você administra o seu próprio ritmo dentro da hora.</li>
+      <li>Se a hora se esgotar antes de você terminar, a atividade é <strong>enviada automaticamente</strong> com as respostas que estiverem preenchidas até aquele momento; o que não tiver sido respondido conta como não respondido.</li>
+      <li>Escolha um <strong>local calmo e silencioso</strong> para fazer o exercício. Ao iniciar, você deverá concluir a atividade imediatamente — <strong>a plataforma não permite pausas</strong>.</li>
+      <li>Esta não é uma prova de segunda chamada — é a aplicação regular do exercício.</li>
+      <li>No final, você vai receber um código de envio — <strong>lembre-se de anotar ou baixar esse código e postar no Google Classroom da turma</strong>.</li>
+    </ul>
+    <label>Nome completo *</label>
+    <input type="text" id="inp-nome" placeholder="Seu nome" required>
+    <label>Turma *</label>
+    <input type="text" id="inp-turma" placeholder="Ex: 3º Noite" required>
+    <div class="row">
+      <button class="btn-primary" onclick="startQuiz()">Iniciar atividade</button>
+      <button class="btn-ghost" onclick="goTo('home')">Voltar</button>
+    </div>
+  </div>
+
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="qtop">
+      <span class="qcount" id="qcount"></span>
+      <span class="timer" id="timer" title="Tempo restante da prova (1 hora total)">--:--</span>
+    </div>
+    <div class="progress"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <h2 id="q-text"></h2>
+    <div id="q-options"></div>
+    <div id="q-justify-wrap" class="hidden">
+      <label id="q-justify-label">Sua resposta *</label>
+      <textarea id="q-justify" style="min-height:160px; font-family:'IBM Plex Mono',monospace; font-size:13px;"></textarea>
+    </div>
+    <div class="flagbar" id="live-flags"></div>
+    <div class="row">
+      <button class="btn-primary" onclick="nextQuestion()">Confirmar e avançar</button>
+    </div>
+  </div>
+
+  <!-- RESULTADO ALUNO -->
+  <div id="screen-done" class="card hidden" style="text-align:center;">
+    <div id="stamp-area"></div>
+    <p id="done-msg" style="margin-top:18px;"></p>
+    <p class="small" id="done-flags"></p>
+    <div style="text-align:left;">
+      <label>Seu código de envio — copie e mande para a Professora no Classroom da Turma</label>
+      <textarea class="code" id="submission-code" readonly onclick="this.select()"></textarea>
+      <div class="row">
+        <button class="btn-primary" onclick="copyCode()">Copiar código</button>
+        <button class="btn-ghost" onclick="downloadCode()">Baixar como .txt</button>
+      </div>
+      <p class="small" id="copy-feedback"></p>
+    </div>
+  </div>
+
+  <!-- LOGIN PROFESSOR -->
+  <div id="screen-prof-login" class="card hidden">
+    <h2>Painel do professor</h2>
+    <label>Senha de acesso</label>
+    <input type="text" id="inp-senha" placeholder="Senha">
+    <p class="small" id="senha-erro"></p>
+    <div class="row">
+      <button class="btn-primary" onclick="checkSenha()">Entrar</button>
+      <button class="btn-ghost" onclick="goTo('home')">Voltar</button>
+    </div>
+  </div>
+
+  <!-- PAINEL PROFESSOR -->
+  <div id="screen-prof" class="card hidden">
+    <h2>Processar envios</h2>
+    <p>Cole abaixo um ou mais códigos recebidos dos alunos (um por linha) e clique em processar. Também dá para carregar vários arquivos .txt de uma vez.</p>
+    <label>Colar códigos</label>
+    <textarea class="code" id="codes-input" placeholder="Cole aqui um código por linha..."></textarea>
+    <label>Ou carregar arquivo(s) .txt</label>
+    <input type="file" id="file-input" accept=".txt" multiple>
+    <div class="row">
+      <button class="btn-primary" onclick="processCodes()">Processar códigos</button>
+      <button class="btn-ghost" onclick="exportCsv()">Exportar tabela (.csv)</button>
+    </div>
+    <div class="warn">A tabela abaixo existe só nesta sessão do navegador — se você recarregar a página, precisa colar os códigos de novo. Exporte o CSV para guardar um histórico.</div>
+    <div id="prof-table" style="margin-top:16px;"></div>
+  </div>
+
+  <div class="footer-note">Ferramenta local — funciona offline, sem enviar dados para servidores externos.</div>
+</div>
+
+<script>
+/* ======================================================================
+   CONFIGURAÇÃO — edite aqui
+   ====================================================================== */
+const TEACHER_PASSCODE = "redes2026";    // troque pela senha que quiser
+const SESSION_MINUTES = 60;              // tempo TOTAL da prova, em minutos, contado a partir do login do aluno (não é por questão).
+
+// Banco de questões.
+// type: "mc" (múltipla escolha, com gabarito automático) ou "dissertativa" (texto livre, corrigida manualmente).
+const QUESTION_BANK = [
+  { id:"q1", type:"mc",
+    question:"Um professor conecta o notebook a um relógio inteligente e a um fone de ouvido, ambos por Bluetooth, para testar sincronização de dados a curta distância. Essa configuração é classificada, quanto ao alcance, como:",
+    options:["PAN","LAN","MAN","WAN"], correct:0 },
+
+  { id:"q2", type:"mc",
+    question:"Durante a crimpagem de um cabo de rede, o testador apresenta o resultado 1-1, 2-2, 3-6, 4-4, 5-5, 6-3, 7-7, 8-8. Esse resultado indica um cabo do tipo:",
+    options:[
+      "Reto, seguindo o padrão T568A nas duas pontas",
+      "Reto, seguindo o padrão T568B nas duas pontas",
+      "Crossover, pois os pares das posições 3 e 6 estão cruzados",
+      "Com defeito, pois nenhum cabo pode apresentar esse resultado"
+    ], correct:2 },
+
+  { id:"q3", type:"mc",
+    question:"No Cisco Packet Tracer, PC1 foi configurado com o endereço 192.168.10.1/24 e PC2 com 192.168.20.2/24, ambos ligados ao mesmo switch, sem qualquer roteador na topologia. Ao testar o ping entre eles, o resultado esperado é:",
+    options:[
+      "Sucesso, pois estão no mesmo switch",
+      "Falha, pois pertencem a redes lógicas diferentes e não há roteador para encaminhar o tráfego",
+      "Sucesso, pois o switch faz o roteamento automaticamente",
+      "Falha, apenas por causa do cabo utilizado"
+    ], correct:1 },
+
+  { id:"q4", type:"mc",
+    question:"Um computador está configurado na rede 192.168.10.0/24. Considerando o endereço de rede e o endereço de broadcast desse segmento, qual é a faixa correta de hosts válidos?",
+    options:[
+      "192.168.10.0 a 192.168.10.255",
+      "192.168.10.1 a 192.168.10.254",
+      "192.168.10.1 a 192.168.10.255",
+      "192.168.10.0 a 192.168.10.254"
+    ], correct:1 },
+
+  { id:"q5", type:"mc",
+    question:"Um computador recebeu o endereço 169.254.20.8 automaticamente. Qual é a hipótese mais provável para esse resultado?",
+    options:[
+      "O computador está configurado com IP público",
+      "Houve falha na obtenção de configuração via DHCP e o Windows atribuiu um endereço APIPA",
+      "O computador está usando NAT",
+      "O endereço é do tipo loopback"
+    ], correct:1 },
+
+  { id:"q6", type:"mc",
+    question:"Duas máquinas virtuais estão configuradas no mesmo modo de rede do VirtualBox, com IPs na mesma subrede, mas o ping entre elas falha. Qual modo de rede deveria ter sido escolhido para permitir comunicação isolada apenas entre as VMs, sem depender do hospedeiro?",
+    options:["Modo NAT","Modo bridge","Rede interna","Modo loopback"], correct:2 },
+
+  { id:"q7", type:"mc",
+    question:"Um computador consegue pingar o endereço 8.8.8.8, mas não consegue abrir sites digitando o nome de domínio no navegador. Qual serviço deve ser verificado primeiro?",
+    options:["DHCP","DNS","Gateway padrão","NAT"], correct:1 },
+
+  { id:"q8", type:"dissertativa",
+    question:"Explique a diferença entre a topologia física e a topologia lógica de uma rede, e dê um exemplo de cada uma." },
+
+  { id:"q9", type:"dissertativa",
+    question:"Compare os padrões T568A e T568B quanto à ordem dos condutores, e explique quando cada um é utilizado na montagem de um cabo reto e de um cabo crossover." },
+
+  { id:"q10", type:"dissertativa",
+    question:"Considerando a rede 192.168.1.0/24, explique o que representa o endereço de rede, o que representa o endereço de broadcast e por que nenhum dos dois pode ser atribuído a um host." },
+
+  { id:"q11", type:"dissertativa",
+    question:"Explique a finalidade do NAT em uma rede doméstica e por que ele não deve ser considerado um substituto para um firewall." },
+
+  { id:"q12", type:"dissertativa",
+    question:"Um aluno configurou duas máquinas virtuais na mesma rede interna do VirtualBox, com IPs compatíveis, mas o ping entre elas falha. Cite três possíveis causas para esse problema." },
+
+  { id:"q13", type:"dissertativa",
+    question:"Explique a diferença entre configurar um endereço IP manualmente e obtê-lo via DHCP, citando uma vantagem de cada abordagem." },
+
+  { id:"q14", type:"dissertativa",
+    question:"Um computador não consegue acessar a internet. Descreva uma sequência lógica de testes (em camadas) que um técnico deveria seguir para diagnosticar o problema, do mais local ao mais externo." }
+];
+
+/* ====================================================================== */
+
+let state = {
+  nome:"", turma:"", order:[], optionMaps:{}, current:0, answers:[],
+  flags:{ tabSwitches:0, copyAttempts:0, pasteAttempts:0, rightClicks:0 },
+  qStartTime:0, globalTimerInterval:null, globalDeadline:null,
+  lastCode:"", startedAt:null, attemptNumber:1, previousAttempts:[]
+};
+let profRecords = [];
+
+function goTo(name){
+  ["home","aluno-intro","quiz","done","prof-login","prof"].forEach(s=>{
+    document.getElementById("screen-"+s).classList.add("hidden");
+  });
+  document.getElementById("screen-"+name).classList.remove("hidden");
+}
+
+function seedFromString(str){
+  let h = 1779033703 ^ str.length;
+  for (let i=0;i<str.length;i++){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+function shuffle(arr, rng){
+  const a = arr.slice();
+  for (let i=a.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* UTF-8 safe base64 */
+function encode64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function decode64(str){ return decodeURIComponent(escape(atob(str))); }
+
+function startQuiz(){
+  const nome = document.getElementById("inp-nome").value.trim();
+  const turma = document.getElementById("inp-turma").value.trim();
+  if (!nome){ alert("Preencha seu nome completo para começar."); return; }
+  if (!turma){ alert("Preencha sua turma para começar."); return; }
+  state.nome = nome;
+  state.turma = turma;
+
+  // Verifica tentativas anteriores registradas neste navegador/dispositivo para este aluno.
+  // Aviso: isso não impede burla (aba anônima, outro navegador, limpar dados), mas desencoraja
+  // e fica registrado no código final de envio, visível para a professora.
+  const attemptKey = "atividade_tentativas_" + nome.toLowerCase().replace(/\s+/g,"_") + "_" + turma.toLowerCase().replace(/\s+/g,"_");
+  let previousAttempts = [];
+  try{
+    const stored = localStorage.getItem(attemptKey);
+    if (stored) previousAttempts = JSON.parse(stored);
+  }catch(e){ previousAttempts = []; }
+
+  if (previousAttempts.length > 0){
+    const ultima = new Date(previousAttempts[previousAttempts.length-1]).toLocaleString('pt-BR');
+    const confirmar = confirm(
+      `Este dispositivo já registra ${previousAttempts.length} tentativa(s) anterior(es) desta atividade por você, a última em ${ultima}.\n\n` +
+      `Se continuar, esta será a tentativa nº ${previousAttempts.length+1}, e isso ficará registrado no código enviado à professora.\n\n` +
+      `Deseja continuar mesmo assim?`
+    );
+    if (!confirmar) return;
+  }
+
+  state.startedAt = new Date().toISOString();
+  state.attemptNumber = previousAttempts.length + 1;
+  state.previousAttempts = previousAttempts;
+
+  previousAttempts.push(state.startedAt);
+  try{ localStorage.setItem(attemptKey, JSON.stringify(previousAttempts)); }catch(e){ /* localStorage indisponível — segue sem travar */ }
+
+  const rng = seedFromString(nome.toLowerCase() + "_" + state.turma.toLowerCase());
+  state.order = shuffle(QUESTION_BANK.map(q=>q.id), rng);
+  QUESTION_BANK.forEach(q=>{
+    if (q.type !== "dissertativa" && Array.isArray(q.options)){
+      const idxArr = q.options.map((_,i)=>i);
+      state.optionMaps[q.id] = shuffle(idxArr, rng);
+    }
+  });
+
+  state.current = 0;
+  state.answers = [];
+  state.flags = { tabSwitches:0, copyAttempts:0, pasteAttempts:0, rightClicks:0 };
+
+  attachMonitoring();
+  goTo("quiz");
+  startGlobalTimer();
+  renderQuestion();
+}
+
+function attachMonitoring(){
+  document.addEventListener("visibilitychange", ()=>{
+    if (document.hidden && !document.getElementById("screen-quiz").classList.contains("hidden")){
+      state.flags.tabSwitches++; renderLiveFlags();
+    }
+  });
+  document.addEventListener("copy", ()=>{
+    if (!document.getElementById("screen-quiz").classList.contains("hidden")){
+      state.flags.copyAttempts++; renderLiveFlags();
+    }
+  });
+  document.addEventListener("paste", ()=>{
+    if (!document.getElementById("screen-quiz").classList.contains("hidden")){
+      state.flags.pasteAttempts++; renderLiveFlags();
+    }
+  });
+  document.addEventListener("contextmenu", (e)=>{
+    if (!document.getElementById("screen-quiz").classList.contains("hidden")){
+      e.preventDefault(); state.flags.rightClicks++; renderLiveFlags();
+    }
+  });
+}
+
+function renderLiveFlags(){
+  const wrap = document.getElementById("live-flags");
+  wrap.innerHTML = "";
+  if (state.flags.tabSwitches>0) wrap.innerHTML += `<span class="badge badge-amber">Saiu da tela: ${state.flags.tabSwitches}x</span>`;
+  if (state.flags.copyAttempts>0) wrap.innerHTML += `<span class="badge badge-red">Copiou texto: ${state.flags.copyAttempts}x</span>`;
+  if (state.flags.pasteAttempts>0) wrap.innerHTML += `<span class="badge badge-red">Colar detectado: ${state.flags.pasteAttempts}x</span>`;
+  if (state.flags.rightClicks>0) wrap.innerHTML += `<span class="badge badge-amber">Clique direito: ${state.flags.rightClicks}x</span>`;
+}
+
+function currentQuestion(){
+  const id = state.order[state.current];
+  return QUESTION_BANK.find(q=>q.id===id);
+}
+
+function renderQuestion(){
+  const q = currentQuestion();
+  document.getElementById("qcount").textContent = `Questão ${state.current+1} de ${state.order.length}`;
+  document.getElementById("progress-fill").style.width = `${(state.current/state.order.length)*100}%`;
+
+  const codeHtml = q.code
+    ? `<pre style="background:#0F1424; border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; overflow-x:auto; margin-bottom:12px; white-space:pre-wrap; color:#D6DCF0;">${escapeHtml(q.code)}</pre>`
+    : "";
+  document.getElementById("q-text").innerHTML = codeHtml + `<span>${escapeHtml(q.question).replace(/\n/g,"<br>")}</span>`;
+
+  const optWrap = document.getElementById("q-options");
+  const jWrap = document.getElementById("q-justify-wrap");
+  optWrap.innerHTML = "";
+
+  if (q.type === "dissertativa"){
+    optWrap.classList.add("hidden");
+    jWrap.classList.remove("hidden");
+    document.getElementById("q-justify").placeholder = "Digite sua resposta aqui...";
+    document.getElementById("q-justify").value = "";
+  } else {
+    optWrap.classList.remove("hidden");
+    jWrap.classList.add("hidden");
+    const order = state.optionMaps[q.id];
+    order.forEach((origIdx)=>{
+      const div = document.createElement("div");
+      div.className = "opt";
+      div.dataset.origIdx = origIdx;
+      div.innerHTML = `<input type="radio" name="opt" value="${origIdx}"><span>${escapeHtml(q.options[origIdx])}</span>`;
+      div.onclick = ()=>{
+        document.querySelectorAll(".opt").forEach(o=>o.classList.remove("selected"));
+        div.classList.add("selected");
+        div.querySelector("input").checked = true;
+      };
+      optWrap.appendChild(div);
+    });
+  }
+
+  renderLiveFlags();
+  state.qStartTime = Date.now(); // marca início desta questão, só para estatística de tempo gasto — não reinicia o cronômetro geral da prova
+}
+
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* Cronômetro ÚNICO da prova inteira (1 hora corrida a partir do login),
+   em vez de um cronômetro reiniciado a cada questão. */
+function startGlobalTimer(){
+  state.globalDeadline = Date.now() + SESSION_MINUTES*60*1000;
+  updateGlobalTimerDisplay();
+  clearInterval(state.globalTimerInterval);
+  state.globalTimerInterval = setInterval(()=>{
+    const remaining = Math.round((state.globalDeadline - Date.now())/1000);
+    updateGlobalTimerDisplay();
+    if (remaining<=0){
+      clearInterval(state.globalTimerInterval);
+      forceFinishOnTimeout();
+    }
+  },1000);
+}
+function updateGlobalTimerDisplay(){
+  const remaining = Math.max(0, Math.round((state.globalDeadline - Date.now())/1000));
+  const h = Math.floor(remaining/3600);
+  const m = Math.floor((remaining%3600)/60).toString().padStart(2,"0");
+  const s = (remaining%60).toString().padStart(2,"0");
+  document.getElementById("timer").textContent = h>0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+}
+
+/* Quando a 1 hora se esgota: registra a questão atual como está (respondida ou não),
+   marca todas as questões restantes como não respondidas, e encerra a prova automaticamente. */
+function forceFinishOnTimeout(){
+  const q = currentQuestion();
+  const timeSpent = Math.round((Date.now()-state.qStartTime)/1000);
+  if (q.type === "dissertativa"){
+    const text = document.getElementById("q-justify").value.trim();
+    state.answers.push({ id:q.id, question:q.question, type:"dissertativa",
+      selectedText: text || "(não respondeu — tempo esgotado)", correct:null, justify:"", timeSpent, timedOut:true });
+  } else {
+    const selected = document.querySelector('input[name="opt"]:checked');
+    const selIdx = selected ? parseInt(selected.value) : null;
+    state.answers.push({ id:q.id, question:q.question, type:"mc",
+      selectedText: selIdx!==null ? q.options[selIdx] : "(não respondeu — tempo esgotado)",
+      correct: selIdx===q.correct, justify:"", timeSpent, timedOut:true });
+  }
+  state.current++;
+  while (state.current < state.order.length){
+    const qq = currentQuestion();
+    if (qq.type === "dissertativa"){
+      state.answers.push({ id:qq.id, question:qq.question, type:"dissertativa",
+        selectedText:"(não respondeu — tempo esgotado)", correct:null, justify:"", timeSpent:0, timedOut:true });
+    } else {
+      state.answers.push({ id:qq.id, question:qq.question, type:"mc",
+        selectedText:"(não respondeu — tempo esgotado)", correct:false, justify:"", timeSpent:0, timedOut:true });
+    }
+    state.current++;
+  }
+  finishQuiz();
+}
+
+function nextQuestion(){
+  const q = currentQuestion();
+  if (q.type === "dissertativa"){
+    const text = document.getElementById("q-justify").value.trim();
+    if (!text){ alert("Este campo é obrigatório. Escreva sua resposta antes de avançar."); return; }
+  } else {
+    const selected = document.querySelector('input[name="opt"]:checked');
+    if (!selected){ alert("Selecione uma alternativa antes de avançar."); return; }
+  }
+  commitAnswer(false);
+}
+
+function commitAnswer(timedOut){
+  const q = currentQuestion();
+  const timeSpent = Math.round((Date.now()-state.qStartTime)/1000);
+
+  if (q.type === "dissertativa"){
+    const text = document.getElementById("q-justify").value.trim();
+    state.answers.push({
+      id:q.id, question:q.question, type:"dissertativa",
+      selectedText: text || "(não respondeu)",
+      correct: null, justify:"", timeSpent, timedOut
+    });
+  } else {
+    const selected = document.querySelector('input[name="opt"]:checked');
+    const selIdx = selected ? parseInt(selected.value) : null;
+    state.answers.push({
+      id:q.id, question:q.question, type:"mc",
+      selectedText: selIdx!==null ? q.options[selIdx] : "(não respondeu)",
+      correct: selIdx===q.correct, justify:"", timeSpent, timedOut
+    });
+  }
+
+  state.current++;
+  if (state.current < state.order.length){ renderQuestion(); } else { finishQuiz(); }
+}
+
+function finishQuiz(){
+  clearInterval(state.globalTimerInterval);
+  const mcAnswers = state.answers.filter(a=>a.type==="mc");
+  const dissertativas = state.answers.filter(a=>a.type==="dissertativa");
+  const score = mcAnswers.filter(a=>a.correct).length;
+  const mcTotal = mcAnswers.length;
+  const finishedAt = new Date().toISOString();
+  const record = {
+    nome: state.nome, turma: state.turma, timestamp: finishedAt,
+    startedAt: state.startedAt, finishedAt: finishedAt,
+    attemptNumber: state.attemptNumber, previousAttemptsCount: state.previousAttempts.length,
+    score, total: mcTotal, dissertativasCount: dissertativas.length,
+    flags: state.flags, answers: state.answers
+  };
+  state.lastCode = encode64(JSON.stringify(record));
+
+  goTo("done");
+  const totalFlags = state.flags.tabSwitches + state.flags.copyAttempts + state.flags.pasteAttempts + state.flags.rightClicks;
+  const stampArea = document.getElementById("stamp-area");
+  stampArea.innerHTML = totalFlags===0
+    ? `<div class="stamp stamp-green">Íntegro ✓</div>`
+    : `<div class="stamp stamp-red">Revisar</div>`;
+  let msg = `Atividade concluída, <strong>${state.nome}</strong>. Você acertou ${score} de ${mcTotal} questões objetivas.`;
+  if (dissertativas.length>0) msg += ` As ${dissertativas.length} questão(ões) dissertativa(s) serão corrigidas pela professora.`;
+  document.getElementById("done-msg").innerHTML = msg;
+  document.getElementById("done-flags").textContent = totalFlags>0
+    ? `Sinais registrados: ${state.flags.tabSwitches} troca(s) de tela, ${state.flags.copyAttempts} cópia(s), ${state.flags.pasteAttempts} colagem(ns), ${state.flags.rightClicks} clique(s) direito.`
+    : "Nenhum sinal de saída da tela ou colagem foi registrado.";
+  document.getElementById("submission-code").value = state.lastCode;
+}
+
+function copyCode(){
+  const ta = document.getElementById("submission-code");
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    document.getElementById("copy-feedback").textContent = "Código copiado! Agora é só colar e enviar para o professor.";
+  }).catch(()=>{
+    document.getElementById("copy-feedback").textContent = "Selecione o texto acima e copie manualmente (Ctrl+C).";
+  });
+}
+
+function downloadCode(){
+  const blob = new Blob([state.lastCode], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `envio_${state.nome.replace(/[^a-zA-Z0-9]/g,'_')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Painel do professor ---------- */
+function checkSenha(){
+  const val = document.getElementById("inp-senha").value;
+  if (val === TEACHER_PASSCODE){ goTo("prof"); renderProfTable(); }
+  else { document.getElementById("senha-erro").textContent = "Senha incorreta."; }
+}
+
+function processCodes(){
+  const textLines = document.getElementById("codes-input").value.split("\n").map(l=>l.trim()).filter(Boolean);
+  const fileInput = document.getElementById("file-input");
+  const filePromises = [];
+  if (fileInput.files.length>0){
+    for (const f of fileInput.files){
+      filePromises.push(f.text().then(t=>t.trim()));
+    }
+  }
+  Promise.all(filePromises).then(fileTexts=>{
+    const allCodes = textLines.concat(fileTexts.filter(Boolean));
+    let added = 0, failed = 0;
+    allCodes.forEach(code=>{
+      try{
+        const json = decode64(code);
+        const rec = JSON.parse(json);
+        if (!profRecords.find(r=>r.timestamp===rec.timestamp && r.nome===rec.nome)){
+          profRecords.push(rec); added++;
+        }
+      }catch(e){ failed++; }
+    });
+    renderProfTable();
+    document.getElementById("codes-input").value = "";
+    fileInput.value = "";
+    if (failed>0) alert(`${added} envio(s) adicionado(s). ${failed} código(s) inválido(s) foram ignorados.`);
+  });
+}
+
+function renderProfTable(){
+  const tableWrap = document.getElementById("prof-table");
+  if (profRecords.length===0){
+    tableWrap.innerHTML = "<p class='small'>Nenhum envio processado ainda.</p>";
+    return;
+  }
+  const sorted = profRecords.slice().sort((a,b)=>{
+    const fa = a.flags.tabSwitches+(a.flags.copyAttempts||0)+a.flags.pasteAttempts+a.flags.rightClicks + ((a.attemptNumber>1)?1:0);
+    const fb = b.flags.tabSwitches+(b.flags.copyAttempts||0)+b.flags.pasteAttempts+b.flags.rightClicks + ((b.attemptNumber>1)?1:0);
+    return fb-fa;
+  });
+  let html = `<table><thead><tr><th>Aluno</th><th>Turma</th><th>Nota</th><th>Tentativa</th><th>Alertas</th><th></th></tr></thead><tbody>`;
+  sorted.forEach((d,i)=>{
+    const totalFlags = d.flags.tabSwitches+(d.flags.copyAttempts||0)+d.flags.pasteAttempts+d.flags.rightClicks;
+    const badge = totalFlags===0 ? `<span class="badge badge-green">OK</span>` : `<span class="badge badge-red">${totalFlags} alerta(s)</span>`;
+    const attemptBadge = (d.attemptNumber && d.attemptNumber>1)
+      ? `<span class="badge badge-amber">${d.attemptNumber}ª tentativa</span>`
+      : `<span class="badge badge-green">1ª</span>`;
+    html += `<tr>
+      <td>${d.nome}</td><td>${d.turma||"-"}</td><td>${d.score}/${d.total}</td><td>${attemptBadge}</td><td>${badge}</td>
+      <td><a class="link" onclick="toggleDetail(${i})">ver</a></td>
+    </tr>
+    <tr id="detail-${i}" class="hidden"><td colspan="6">${renderDetail(d)}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  tableWrap.innerHTML = html;
+  tableWrap.dataset.sorted = JSON.stringify(sorted.map((d,i)=>i));
+}
+
+function renderDetail(d){
+  let duracao = "-";
+  if (d.startedAt && d.finishedAt){
+    const mins = Math.round((new Date(d.finishedAt) - new Date(d.startedAt))/60000);
+    duracao = `${mins} min`;
+  }
+  const attemptLine = (d.attemptNumber && d.attemptNumber>1)
+    ? `<br><strong style="color:var(--warn);">Atenção:</strong> esta foi a ${d.attemptNumber}ª tentativa registrada neste dispositivo (${d.previousAttemptsCount} anterior(es)).`
+    : "";
+  let out = `<div class="detail"><strong>Início:</strong> ${d.startedAt ? new Date(d.startedAt).toLocaleString('pt-BR') : "-"} ·
+  <strong>Término:</strong> ${d.finishedAt ? new Date(d.finishedAt).toLocaleString('pt-BR') : "-"} ·
+  <strong>Duração:</strong> ${duracao}<br>
+  <strong>Trocas de tela:</strong> ${d.flags.tabSwitches} · <strong>Cópias:</strong> ${d.flags.copyAttempts||0} · <strong>Colagens:</strong> ${d.flags.pasteAttempts} · <strong>Clique direito:</strong> ${d.flags.rightClicks}${attemptLine}</div>`;
+  d.answers.forEach((a,i)=>{
+    const isDiss = a.type === "dissertativa";
+    out += `<div class="detail" style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+      <strong>${i+1}. ${(a.question||"").replace(/\n/g,"<br>")}</strong><br>
+      ${isDiss
+        ? `<div style="white-space:pre-wrap; background:var(--card-hi); border-radius:6px; padding:8px; margin-top:4px;">${a.selectedText}</div><span class="badge badge-amber" style="margin-top:4px; display:inline-block;">Corrigir manualmente</span>`
+        : `Resposta: ${a.selectedText} — ${a.correct?"✔ correta":"✘ incorreta"} ${a.timedOut?"(tempo esgotado)":""}`
+      }<br>
+      Tempo gasto: ${a.timeSpent}s
+    </div>`;
+  });
+  return out;
+}
+
+function toggleDetail(i){ document.getElementById("detail-"+i).classList.toggle("hidden"); }
+
+function exportCsv(){
+  if (profRecords.length===0){ alert("Nenhum envio para exportar ainda."); return; }
+  let csv = "Nome,Turma,Nota,Total,Trocas de tela,Cópias,Colagens,Clique direito,Data\n";
+  profRecords.forEach(d=>{
+    csv += `"${d.nome}","${d.turma||''}",${d.score},${d.total},${d.flags.tabSwitches},${d.flags.copyAttempts||0},${d.flags.pasteAttempts},${d.flags.rightClicks},"${new Date(d.timestamp).toLocaleString('pt-BR')}"\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "envios_atividade.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
